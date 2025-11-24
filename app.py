@@ -52,8 +52,11 @@ def init_data_files():
             'password': generate_password_hash('admin123')
         }
         
-        # Load from reporter_credentials.csv
-        csv_path = os.path.join(os.path.dirname(BASE_DIR), 'weekend_reporter', 'reporter_credentials.csv')
+        # Load from reporter_credentials.csv (local copy or parent directory)
+        csv_path = os.path.join(BASE_DIR, 'reporter_credentials.csv')
+        if not os.path.exists(csv_path):
+            csv_path = os.path.join(os.path.dirname(BASE_DIR), 'weekend_reporter', 'reporter_credentials.csv')
+        
         if os.path.exists(csv_path):
             # Try multiple encodings
             for encoding in ['utf-8', 'latin-1', 'cp1252']:
