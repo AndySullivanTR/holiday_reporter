@@ -88,6 +88,16 @@ def init_data_files():
     
     if not os.path.exists(ASSIGNMENTS_FILE):
         save_json(ASSIGNMENTS_FILE, {})
+    
+    # Copy holidays.json from git if it doesn't exist in data directory
+    # (This handles the case where data/ is a mounted disk that overlays git files)
+    if not os.path.exists(HOLIDAYS_FILE):
+        # Check if there's a holidays.json in the project root or a backup location
+        backup_path = os.path.join(BASE_DIR, 'holidays_backup.json')
+        if os.path.exists(backup_path):
+            import shutil
+            shutil.copy(backup_path, HOLIDAYS_FILE)
+            print(f"Copied holidays.json from backup to {HOLIDAYS_FILE}")
 
 # Helper functions
 def load_json(filepath):
