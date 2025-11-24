@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.log
+.DS_Store
+*.sqlite3
+
+# Local data files (will be recreated on server)
+data/reporters.json
+data/signups.json
+data/assignments.json
+data/settings.json
+
+# Keep holidays.json structure
+!data/holidays.json

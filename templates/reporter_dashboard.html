@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holiday Shifts - Reporter Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a4d2e 0%, #2d7a4f 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .info-card h2 {
+            color: #1a4d2e;
+            margin-bottom: 1rem;
+        }
+        
+        .deadline-info {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+        
+        .deadline-info strong {
+            color: #856404;
+        }
+        
+        .locked-info {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            color: #721c24;
+        }
+        
+        .assignment-card {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+        }
+        
+        .assignment-card h3 {
+            color: #155724;
+            margin-bottom: 0.5rem;
+        }
+        
+        .assignment-details {
+            font-size: 1.1rem;
+            color: #155724;
+        }
+        
+        .shifts-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .shifts-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .shifts-table th {
+            background: #1a4d2e;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .shifts-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .shifts-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .shifts-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .checkbox-cell {
+            text-align: center;
+            width: 120px;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #2d7a4f;
+        }
+        
+        input[type="checkbox"]:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #1a4d2e 0%, #2d7a4f 100%);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 77, 46, 0.3);
+        }
+        
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .holiday-name {
+            font-weight: 600;
+            color: #1a4d2e;
+        }
+        
+        .date-cell {
+            color: #666;
+        }
+        
+        .btn-change-password {
+            background: white;
+            color: #1a4d2e;
+            border: 2px solid #1a4d2e;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .btn-change-password:hover {
+            background: #f0f8f4;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h3 {
+            color: #1a4d2e;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-modal-primary {
+            flex: 1;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #1a4d2e 0%, #2d7a4f 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-modal-secondary {
+            flex: 1;
+            padding: 0.8rem;
+            background: white;
+            color: #1a4d2e;
+            border: 2px solid #1a4d2e;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .form-group-modal {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group-modal label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group-modal input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .error-message-modal {
+            background: #fee;
+            color: #c33;
+            padding: 0.8rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Holiday Shift Signup</h1>
+            <div class="user-info">
+                <span>{{ username }}</span>
+                <button class="btn-change-password" onclick="openPasswordModal()">Change Password</button>
+                <button class="btn-logout" onclick="window.location.href='/logout'">Logout</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        {% if not is_locked %}
+        <div class="deadline-info">
+            <strong>Deadline:</strong> December 8, 2025 at 12:00 PM
+        </div>
+        {% else %}
+        <div class="locked-info">
+            <strong>Signups are now closed.</strong> The deadline has passed or shifts have been allocated.
+        </div>
+        {% endif %}
+        
+        {% if assignment is not none %}
+        <div class="assignment-card">
+            <h3>✓ Your Holiday Assignment</h3>
+            {% for shift in holidays %}
+                {% if shift.id == assignment %}
+                <div class="assignment-details">
+                    <strong>{{ shift.holiday }}</strong> - {{ shift.date|format_date }}<br>
+                    {{ shift.time }}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="info-card">
+            <h2>Select Holiday Shifts You're Interested In</h2>
+            <p style="margin-bottom: 1.5rem;">Check the boxes for any holiday shifts you'd be willing to work. You may select as many as you like, but <strong>you will be assigned a maximum of ONE shift</strong>. Assignments will be made randomly from interested reporters.</p>
+            
+            <div class="shifts-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Holiday</th>
+                            <th>Date</th>
+                            <th class="checkbox-cell">Morning<br>8:00 AM - 4:00 PM</th>
+                            <th class="checkbox-cell">Evening<br>3:00 PM - 10:00 PM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set holidays_by_date = {} %}
+                        {% for shift in holidays %}
+                            {% if shift.date not in holidays_by_date %}
+                                {% set _ = holidays_by_date.update({shift.date: {'holiday': shift.holiday, 'shifts': []}}) %}
+                            {% endif %}
+                            {% set _ = holidays_by_date[shift.date]['shifts'].append(shift) %}
+                        {% endfor %}
+                        
+                        {% for date, info in holidays_by_date.items() %}
+                        <tr>
+                            <td class="holiday-name">{{ info.holiday }}</td>
+                            <td class="date-cell">{{ date|format_date }}</td>
+                            {% for shift in info.shifts %}
+                            <td class="checkbox-cell">
+                                <input type="checkbox" 
+                                       class="shift-checkbox" 
+                                       data-shift-id="{{ shift.id }}"
+                                       {% if shift.id in signups %}checked{% endif %}
+                                       {% if is_locked %}disabled{% endif %}>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if not is_locked %}
+            <button class="btn-submit" id="submitBtn" onclick="submitSignups()">Save My Selections</button>
+            <div class="success-message" id="successMsg">✓ Your selections have been saved!</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>Change Password</h3>
+            <div id="modalError" class="error-message-modal"></div>
+            <form id="passwordForm" onsubmit="changePassword(event)">
+                <div class="form-group-modal">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+                <div class="form-group-modal">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <div class="form-group-modal">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-modal-primary">Change Password</button>
+                    <button type="button" class="btn-modal-secondary" onclick="closePasswordModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('passwordForm').reset();
+            document.getElementById('modalError').style.display = 'none';
+        }
+        
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+        
+        async function changePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorDiv = document.getElementById('modalError');
+            
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'New passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                errorDiv.textContent = 'New password must be at least 6 characters';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Password changed successfully!');
+                    closePasswordModal();
+                } else {
+                    errorDiv.textContent = data.error || 'Failed to change password';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        async function submitSignups() {
+            const checkboxes = document.querySelectorAll('.shift-checkbox:checked');
+            const signups = Array.from(checkboxes).map(cb => parseInt(cb.dataset.shiftId));
+            
+            try {
+                const response = await fetch('/api/signups', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ signups })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const successMsg = document.getElementById('successMsg');
+                    successMsg.style.display = 'block';
+                    
+                    // Show browser alert as well
+                    alert('Your holiday shift selections have been saved successfully!');
+                    
+                    setTimeout(() => {
+                        successMsg.style.display = 'none';
+                    }, 5000);
+                }
+            } catch (error) {
+                alert('Error saving selections. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holiday Shifts - Manager Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a4d2e 0%, #2d7a4f 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #2d7a4f;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            color: #1a4d2e;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .info-card h2 {
+            color: #1a4d2e;
+            margin-bottom: 1rem;
+        }
+        
+        .deadline-info {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            color: #856404;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1a4d2e 0%, #2d7a4f 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 77, 46, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #1a4d2e;
+            border: 2px solid #2d7a4f;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background: #f0f8f4;
+        }
+        
+        .shifts-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .shifts-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .shifts-table th {
+            background: #1a4d2e;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .shifts-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .shifts-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .shifts-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-filled {
+            background: #d4edda;
+            color: #155724;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-vacant {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .interest-badge {
+            background: #e7f3ff;
+            color: #004085;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .holiday-name {
+            font-weight: 600;
+            color: #1a4d2e;
+        }
+        
+        .btn-change-password {
+            background: white;
+            color: #1a4d2e;
+            border: 2px solid #1a4d2e;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .btn-change-password:hover {
+            background: #f0f8f4;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h3 {
+            color: #1a4d2e;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-modal-primary {
+            flex: 1;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #1a4d2e 0%, #2d7a4f 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .btn-modal-secondary {
+            flex: 1;
+            padding: 0.8rem;
+            background: white;
+            color: #1a4d2e;
+            border: 2px solid #1a4d2e;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .form-group-modal {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group-modal label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group-modal input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .error-message-modal {
+            background: #fee;
+            color: #c33;
+            padding: 0.8rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Holiday Shifts - Manager Dashboard</h1>
+            <div class="user-info">
+                <button class="btn-change-password" onclick="openPasswordModal()">Change Password</button>
+                <button class="btn-logout" onclick="window.location.href='/logout'">Logout</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="deadline-info">
+            <strong>Signup Deadline:</strong> December 8, 2025 at 12:00 PM
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Reporters Submitted</div>
+                <div class="stat-value">{{ submitted_count }}/{{ total_reporters }}</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Total Holiday Shifts</div>
+                <div class="stat-value">10</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Total Slots Available</div>
+                <div class="stat-value">20</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Assignments Made</div>
+                <div class="stat-value">{{ assignments|length }}</div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn-primary" onclick="runAllocation()">Run Allocation</button>
+            <button class="btn-secondary" onclick="window.location.href='/api/export-excel'">Export to Excel</button>
+        </div>
+        
+        <div class="success-message" id="successMsg"></div>
+        
+        <div class="info-card">
+            <h2>Holiday Shifts - Interest & Assignments</h2>
+            <div class="shifts-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Holiday</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Interest</th>
+                            <th>Assigned</th>
+                            <th>Capacity</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shift in holidays %}
+                        <tr>
+                            <td class="holiday-name">{{ shift.holiday }}</td>
+                            <td>{{ shift.date|format_date }}</td>
+                            <td>{{ shift.time }}</td>
+                            <td>
+                                <span class="interest-badge">{{ shift_interest.get(shift.id, 0) }} interested</span>
+                            </td>
+                            <td>
+                                {% set assigned = [] %}
+                                {% for reporter, shift_id in assignments.items() %}
+                                    {% if shift_id == shift.id %}
+                                        {% set _ = assigned.append(reporters[reporter].name) %}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if assigned %}
+                                    {{ assigned|join(', ') }}
+                                {% else %}
+                                    <em style="color: #999;">None yet</em>
+                                {% endif %}
+                            </td>
+                            <td>{{ assigned|length }}/{{ shift.slots }}</td>
+                            <td>
+                                {% if assigned|length >= shift.slots %}
+                                    <span class="status-filled">FILLED</span>
+                                {% else %}
+                                    <span class="status-vacant">VACANT ({{ shift.slots - assigned|length }})</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <h2>Reporters Who Expressed Interest</h2>
+            <p style="margin-bottom: 1rem; color: #666;">{{ submitted_count }} of {{ total_reporters }} reporters have indicated interest in holiday shifts.</p>
+            
+            {% set interested_reporters = [] %}
+            {% for username, shift_list in signups.items() %}
+                {% if shift_list %}
+                    {% set _ = interested_reporters.append({
+                        'name': reporters[username].name,
+                        'username': username,
+                        'count': shift_list|length,
+                        'assigned': username in assignments
+                    }) %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if interested_reporters %}
+            <div class="shifts-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reporter</th>
+                            <th>Shifts Interested In</th>
+                            <th>Assignment Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reporter in interested_reporters|sort(attribute='name') %}
+                        <tr>
+                            <td>{{ reporter.name }}</td>
+                            <td>{{ reporter.count }} shift(s)</td>
+                            <td>
+                                {% if reporter.assigned %}
+                                    <span class="status-filled">✓ Assigned</span>
+                                {% else %}
+                                    <em style="color: #999;">Not yet assigned</em>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="color: #999; font-style: italic;">No reporters have expressed interest yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>Change Password</h3>
+            <div id="modalError" class="error-message-modal"></div>
+            <form id="passwordForm" onsubmit="changePassword(event)">
+                <div class="form-group-modal">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+                <div class="form-group-modal">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <div class="form-group-modal">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-modal-primary">Change Password</button>
+                    <button type="button" class="btn-modal-secondary" onclick="closePasswordModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('passwordForm').reset();
+            document.getElementById('modalError').style.display = 'none';
+        }
+        
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+        
+        async function changePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorDiv = document.getElementById('modalError');
+            
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'New passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                errorDiv.textContent = 'New password must be at least 6 characters';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Password changed successfully!');
+                    closePasswordModal();
+                } else {
+                    errorDiv.textContent = data.error || 'Failed to change password';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        async function runAllocation() {
+            if (!confirm('Are you sure you want to run the allocation? This will randomly assign shifts to interested reporters and lock the system.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/allocate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Allocation completed successfully! Assignments have been made.');
+                    location.reload();
+                } else {
+                    alert('Error running allocation: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error running allocation. Please try again.');
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
