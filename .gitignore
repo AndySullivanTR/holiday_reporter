@@ -15,5 +15,5 @@ data/signups.json
 data/assignments.json
 data/settings.json
 
-# Keep holidays.json structure
-!data/holidays.json
+# KEEP holidays.json - it's needed!
+# !data/holidays.json is commented out - we want to include it
