@@ -41,41 +41,46 @@ DEADLINE = datetime(2025, 12, 8, 12, 0, 0)  # December 8, 2025 at noon
 
 # Initialize data files
 def init_data_files():
-    # Load reporters from CSV if reporters.json doesn't exist
-    if not os.path.exists(REPORTERS_FILE):
-        reporters = {}
-        
-        # Manager account
-        reporters['admin'] = {
-            'name': 'Admin',
-            'is_manager': True,
-            'password': generate_password_hash('admin123')
-        }
-        
-        # Load from reporter_credentials.csv (local copy or parent directory)
-        csv_path = os.path.join(BASE_DIR, 'reporter_credentials.csv')
-        if not os.path.exists(csv_path):
-            csv_path = os.path.join(os.path.dirname(BASE_DIR), 'weekend_reporter', 'reporter_credentials.csv')
-        
-        if os.path.exists(csv_path):
-            # Try multiple encodings
-            for encoding in ['utf-8', 'latin-1', 'cp1252']:
-                try:
-                    with open(csv_path, 'r', encoding=encoding) as f:
-                        reader = csv.DictReader(f)
-                        for row in reader:
-                            username = row['Username']
-                            reporters[username] = {
-                                'name': row['Name'],
-                                'is_manager': False,
-                                'password': generate_password_hash(row['Password']),
-                                'email': row['Email']
-                            }
-                    break  # Success, stop trying encodings
-                except UnicodeDecodeError:
-                    continue  # Try next encoding
-        
+    # Always load reporters from CSV if it exists (to catch any CSV updates)
+    reporters = {}
+    csv_loaded = False
+    
+    # Manager account
+    reporters['admin'] = {
+        'name': 'Admin',
+        'is_manager': True,
+        'password': generate_password_hash('admin123')
+    }
+    
+    # Load from reporter_credentials.csv (local copy or parent directory)
+    csv_path = os.path.join(BASE_DIR, 'reporter_credentials.csv')
+    if not os.path.exists(csv_path):
+        csv_path = os.path.join(os.path.dirname(BASE_DIR), 'weekend_reporter', 'reporter_credentials.csv')
+    
+    if os.path.exists(csv_path):
+        # Try multiple encodings
+        for encoding in ['utf-8', 'latin-1', 'cp1252']:
+            try:
+                with open(csv_path, 'r', encoding=encoding) as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        username = row['Username']
+                        reporters[username] = {
+                            'name': row['Name'],
+                            'is_manager': False,
+                            'password': generate_password_hash(row['Password']),
+                            'email': row['Email']
+                        }
+                csv_loaded = True
+                print(f"Loaded {len(reporters)-1} reporters from CSV: {csv_path}")
+                break  # Success, stop trying encodings
+            except UnicodeDecodeError:
+                continue  # Try next encoding
+    
+    # If we loaded from CSV OR if reporters.json doesn't exist, save/update it
+    if csv_loaded or not os.path.exists(REPORTERS_FILE):
         save_json(REPORTERS_FILE, reporters)
+        print(f"Updated reporters.json with {len(reporters)} accounts")
     
     if not os.path.exists(SIGNUPS_FILE):
         save_json(SIGNUPS_FILE, {})
