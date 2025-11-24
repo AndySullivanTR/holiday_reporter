@@ -360,6 +360,7 @@
         <div class="action-buttons">
             <button class="btn-primary" onclick="runAllocation()">Run Allocation</button>
             <button class="btn-secondary" onclick="window.location.href='/api/export-excel'">Export to Excel</button>
+            <button class="btn-secondary" onclick="resetSystem()" style="border-color: #dc3545; color: #dc3545;">Reset System</button>
         </div>
         
         <div class="success-message" id="successMsg"></div>
@@ -573,6 +574,37 @@
                 }
             } catch (error) {
                 alert('Error running allocation. Please try again.');
+                console.error(error);
+            }
+        }
+        
+        async function resetSystem() {
+            const confirmation = prompt('This will DELETE all signups and assignments. Type RESET to confirm:');
+            
+            if (confirmation !== 'RESET') {
+                alert('Reset cancelled.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/reset-system', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ confirmation: 'RESET' })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('System reset successfully! All signups and assignments have been cleared.');
+                    location.reload();
+                } else {
+                    alert('Error resetting system: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error resetting system. Please try again.');
                 console.error(error);
             }
         }

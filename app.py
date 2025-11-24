@@ -313,6 +313,31 @@ def allocate_shifts():
         'shift_assignments': shift_assignments
     })
 
+@app.route('/api/reset-system', methods=['POST'])
+def reset_system():
+    if not session.get('is_manager'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    data = request.json
+    confirmation = data.get('confirmation')
+    
+    if confirmation != 'RESET':
+        return jsonify({'error': 'Invalid confirmation'}), 400
+    
+    try:
+        # Reset signups and assignments
+        save_json(SIGNUPS_FILE, {})
+        save_json(ASSIGNMENTS_FILE, {})
+        
+        # Unlock system
+        settings = get_settings()
+        settings['is_locked'] = False
+        save_json(SETTINGS_FILE, settings)
+        
+        return jsonify({'success': True, 'message': 'System reset successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/change-password', methods=['POST'])
 def change_password():
     if 'username' not in session:
