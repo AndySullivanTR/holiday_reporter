@@ -1,3 +1,4 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -5,15 +6,65 @@ __pycache__/
 .Python
 env/
 venv/
-*.log
-.DS_Store
-*.sqlite3
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Local data files (will be recreated on server)
+# Flask
+instance/
+.webassets-cache
+
+# Data files (stored on persistent disk, not in git)
 data/reporters.json
 data/signups.json
 data/assignments.json
 data/settings.json
 
-# KEEP holidays.json - it's needed!
-# !data/holidays.json is commented out - we want to include it
+# KEEP holidays.json - it's the template configuration
+# holidays.json should be in git
+# holidays_backup.json is redundant
+
+# Credential files (contain passwords - MUST NOT be in git)
+reporter_credentials.csv
+password_summary.txt
+*login_emails.txt
+
+# Mail merge files
+*mailmerge*.csv
+mail_merge_*.csv
+notifications_*.csv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.sqlite3
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
