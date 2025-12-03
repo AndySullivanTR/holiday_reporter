@@ -77,10 +77,11 @@ def init_data_files():
             except UnicodeDecodeError:
                 continue  # Try next encoding
     
-    # If we loaded from CSV OR if reporters.json doesn't exist, save/update it
-    if csv_loaded or not os.path.exists(REPORTERS_FILE):
+    # If we loaded from CSV AND reporters.json doesn't exist, save it
+    # Don't overwrite existing reporters.json (preserves password changes)
+    if csv_loaded and not os.path.exists(REPORTERS_FILE):
         save_json(REPORTERS_FILE, reporters)
-        print(f"Updated reporters.json with {len(reporters)} accounts")
+        print(f"Created reporters.json with {len(reporters)} accounts from CSV")
     
     if not os.path.exists(SIGNUPS_FILE):
         save_json(SIGNUPS_FILE, {})
