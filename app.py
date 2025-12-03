@@ -508,6 +508,42 @@ def export_excel():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/upload-reporters-page')
+def upload_reporters_page():
+    """Upload entire reporters.json from weekend_reporter (ADMIN ONLY)"""
+    if not session.get('is_manager'):
+        return redirect(url_for('login'))
+    return render_template('upload_reporters.html')
+
+@app.route('/api/upload-reporters', methods=['POST'])
+def upload_reporters():
+    """Upload reporters.json file directly (ADMIN ONLY)"""
+    if not session.get('is_manager'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    try:
+        data = request.json
+        new_reporters = data.get('reporters')
+        
+        if not new_reporters:
+            return jsonify({'error': 'No reporters data provided'}), 400
+        
+        # Save to reporters file
+        save_json(REPORTERS_FILE, new_reporters)
+        
+        # Verify it saved
+        reloaded = get_reporters()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Reporters file uploaded successfully',
+            'reporters_count': len(new_reporters),
+            'verified': len(reloaded) == len(new_reporters)
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/sync-passwords-page')
 def sync_passwords_page():
     """Show password sync interface (ADMIN ONLY)"""
