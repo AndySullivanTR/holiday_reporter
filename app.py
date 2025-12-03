@@ -530,21 +530,35 @@ def sync_passwords():
         # Load current holiday_reporter reporters
         holiday_reporters = get_reporters()
         
-        # Sync passwords from weekend_reporter to holiday_reporter
+        # Sync/add reporters from weekend_reporter to holiday_reporter
         synced_count = 0
+        added_count = 0
         for username, weekend_data in weekend_reporters.items():
-            if username in holiday_reporters and username != 'admin':
-                # Copy password hash from weekend_reporter
+            if username == 'admin':
+                continue  # Skip admin account
+            
+            if username in holiday_reporters:
+                # Update existing reporter's password
                 holiday_reporters[username]['password'] = weekend_data['password']
                 synced_count += 1
+            else:
+                # Add new reporter
+                holiday_reporters[username] = {
+                    'name': weekend_data['name'],
+                    'is_manager': False,
+                    'password': weekend_data['password'],
+                    'email': weekend_data.get('email', '')
+                }
+                added_count += 1
         
         # Save updated reporters
         save_json(REPORTERS_FILE, holiday_reporters)
         
         return jsonify({
             'success': True,
-            'message': f'Synced passwords for {synced_count} reporters',
-            'synced_count': synced_count
+            'message': f'Synced {synced_count} passwords, added {added_count} new reporters',
+            'synced_count': synced_count,
+            'added_count': added_count
         })
     
     except Exception as e:
