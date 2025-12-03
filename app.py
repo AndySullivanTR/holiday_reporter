@@ -507,5 +507,48 @@ def export_excel():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/sync-passwords-page')
+def sync_passwords_page():
+    """Show password sync interface (ADMIN ONLY)"""
+    if not session.get('is_manager'):
+        return redirect(url_for('login'))
+    return render_template('sync_passwords.html')
+
+@app.route('/api/sync-passwords', methods=['POST'])
+def sync_passwords():
+    """Sync passwords from weekend_reporter's reporters.json (ADMIN ONLY)"""
+    if not session.get('is_manager'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    try:
+        data = request.json
+        weekend_reporters = data.get('reporters')
+        
+        if not weekend_reporters:
+            return jsonify({'error': 'No reporters data provided'}), 400
+        
+        # Load current holiday_reporter reporters
+        holiday_reporters = get_reporters()
+        
+        # Sync passwords from weekend_reporter to holiday_reporter
+        synced_count = 0
+        for username, weekend_data in weekend_reporters.items():
+            if username in holiday_reporters and username != 'admin':
+                # Copy password hash from weekend_reporter
+                holiday_reporters[username]['password'] = weekend_data['password']
+                synced_count += 1
+        
+        # Save updated reporters
+        save_json(REPORTERS_FILE, holiday_reporters)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Synced passwords for {synced_count} reporters',
+            'synced_count': synced_count
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
