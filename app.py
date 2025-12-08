@@ -601,5 +601,59 @@ def sync_passwords():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/download-signups')
+def download_signups():
+    """Download raw signups.json file (ADMIN ONLY)"""
+    if not session.get('is_manager'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    try:
+        signups = get_signups()
+        
+        # Create JSON string with pretty formatting
+        json_str = json.dumps(signups, indent=2)
+        
+        # Create BytesIO object to send as file
+        from io import BytesIO
+        output = BytesIO(json_str.encode('utf-8'))
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/json',
+            as_attachment=True,
+            download_name=f'holiday_reporter_signups_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        )
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/download-assignments')
+def download_assignments():
+    """Download raw assignments.json file (ADMIN ONLY)"""
+    if not session.get('is_manager'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    try:
+        assignments = get_assignments()
+        
+        # Create JSON string with pretty formatting
+        json_str = json.dumps(assignments, indent=2)
+        
+        # Create BytesIO object to send as file
+        from io import BytesIO
+        output = BytesIO(json_str.encode('utf-8'))
+        output.seek(0)
+        
+        return send_file(
+            output,
+            mimetype='application/json',
+            as_attachment=True,
+            download_name=f'holiday_reporter_assignments_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        )
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
