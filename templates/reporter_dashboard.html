@@ -318,13 +318,9 @@
     </div>
     
     <div class="container">
-        {% if not is_locked %}
-        <div class="deadline-info">
-            <strong>Deadline:</strong> December 8, 2025 at 12:00 PM
-        </div>
-        {% else %}
+        {% if is_locked %}
         <div class="locked-info">
-            <strong>Signups are now closed.</strong> The deadline has passed or shifts have been allocated.
+            <strong>Signups are now closed.</strong> Shifts have been allocated.
         </div>
         {% endif %}
         

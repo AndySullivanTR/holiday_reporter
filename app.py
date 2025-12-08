@@ -36,8 +36,7 @@ SETTINGS_FILE = os.path.join(DATA_DIR, 'settings.json')
 ASSIGNMENTS_FILE = os.path.join(DATA_DIR, 'assignments.json')
 HOLIDAYS_FILE = os.path.join(DATA_DIR, 'holidays.json')
 
-# Hard-coded deadline
-DEADLINE = datetime(2025, 12, 8, 12, 0, 0)  # December 8, 2025 at noon
+# No automatic deadline - system uses manual is_locked flag only
 
 # Initialize data files
 def init_data_files():
@@ -88,7 +87,6 @@ def init_data_files():
     
     if not os.path.exists(SETTINGS_FILE):
         save_json(SETTINGS_FILE, {
-            'deadline': DEADLINE.isoformat(),
             'is_locked': False
         })
     
@@ -205,8 +203,7 @@ def manager_dashboard():
                          assignments=assignments,
                          signups=signups,
                          holidays=holidays['shifts'],
-                         shift_interest=shift_interest,
-                         deadline=DEADLINE)
+                         shift_interest=shift_interest)
 
 @app.route('/reporter/dashboard')
 def reporter_dashboard():
@@ -222,15 +219,14 @@ def reporter_dashboard():
     user_signups = signups.get(username, [])
     user_assignment = assignments.get(username, None)
     
-    # Check if deadline has passed
-    is_locked = settings.get('is_locked', False) or datetime.now() > DEADLINE
+    # Check if locked (manual lock only, no automatic deadline)
+    is_locked = settings.get('is_locked', False)
     
     return render_template('reporter_dashboard.html',
                          username=username,
                          holidays=holidays['shifts'],
                          signups=user_signups,
                          assignment=user_assignment,
-                         deadline=DEADLINE,
                          is_locked=is_locked)
 
 @app.route('/api/signups', methods=['GET', 'POST'])
@@ -242,8 +238,8 @@ def manage_signups():
     signups = get_signups()
     settings = get_settings()
     
-    # Check if locked
-    is_locked = settings.get('is_locked', False) or datetime.now() > DEADLINE
+    # Check if locked (manual lock only, no automatic deadline)
+    is_locked = settings.get('is_locked', False)
     
     if request.method == 'POST':
         if is_locked and not session.get('is_manager'):
